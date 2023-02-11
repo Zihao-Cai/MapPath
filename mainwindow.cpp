@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <QByteArray>
 #include "dijkstra.h"
+#include <QPainter>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -27,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
                                "QPushButton:hover{background-color: rgb(22,218,208);}"//hover
                                "QPushButton:pressed{background-color: rgb(17,171,164);}"//pressed
                                  "border:2px solid rgb(20,196,188);");
-    this->checkboxs.push_back(new QCheckBox);
+    this->checkboxs.push_back(new QCheckBox);//用一个空对象占用0号位
     this->checkboxs.push_back(ui->wulumuqi);
     this->checkboxs.push_back(ui->yinchuan);
     this->checkboxs.push_back(ui->beijing);
@@ -41,17 +42,15 @@ MainWindow::MainWindow(QWidget *parent)
     this->checkboxs.push_back(ui->haikou);
     this->checkboxs.push_back(ui->xianggang);
     this->checkboxs.push_back(ui->guangzhou);
+    for(int i=0;i<checkboxs.size();i++){
+        connect(checkboxs[i],SIGNAL(clicked()),this,SLOT(statechanged()));
+    }
 
     cur_selected = 0;
-    status_timer.setInterval(10);
-    connect(&status_timer,&QTimer::timeout,[=](){//定时器实时监测显示底部状态栏信息
-        QString str = calc();
-        ui->statusbar->showMessage(QString("已选中")+QString::number(cur_selected)+QString("个地点城市: ")+str);
-        });
-    status_timer.start();
+    //ui->mapframe->set
     ui->helpword->setText("\t使用说明\n\n1、选中任意两个城市地点,点击查询即可查询两城市间最短路径,结果包含最短路线图示,路线文字说明,以及最短路程长度.\n\n2、点击复原即可取消所有勾选城市及结果显示.\n\n3、Ps:所有城市以及源数据来源于网络");
     G = new AMGraph();
-
+    update();
 }
 
 MainWindow::~MainWindow()
@@ -59,19 +58,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-QString MainWindow::calc()
-{
-    int ct = 0;
-    QString s = "";
-    for(int i=0;i<checkboxs.size();i++){
-        if(checkboxs[i]->isChecked()){
-            ct++;
-            s+= (G->vexs[i]+ " ");
-        }
-    }
-    this->cur_selected = ct;
-    return s;
-}
 
 void MainWindow::getcity(int &index1, int &index2)
 {
@@ -120,3 +106,46 @@ void MainWindow::on_recover_clicked()
 {
     printf("recover done\n");
 }
+
+void MainWindow::statechanged()
+{
+    QObject *obj = QObject::sender();
+    QCheckBox *chb = qobject_cast<QCheckBox *>(obj);
+    if (chb->isChecked()){
+            cur_selected++;
+        } else {
+            cur_selected--;
+        }
+    if(cur_selected>2){
+        chb->setCheckState(Qt::Unchecked);
+        cur_selected--;
+    }
+
+    QString s = "";
+    for(int i=1;i<checkboxs.size();i++){
+        if(checkboxs[i]->isChecked()){
+            s+= (G->vexs[i]+ " ");
+        }
+    }
+    ui->statusbar->showMessage(QString("已选中")+QString::number(cur_selected)+QString("个地点城市: ")+s);
+}
+
+
+void MainWindow::paintEvent(QPaintEvent*){
+    QPainter painter(ui->mapframe);
+    for(int i=1;i<=13;i++){
+        for(int j=i;j<=13;j++){
+            if(G->arcs[i][j] != ENDLESS){
+                painter.drawLine(checkboxs[i]->x(),checkboxs[i]->y(),checkboxs[j]->x(),checkboxs[j]->y());//绘制城市线路
+
+            }
+        }
+    }// of for i
+
+
+}
+
+
+
+
+

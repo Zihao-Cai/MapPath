@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QVector>
 #include <QCheckBox>
-#include <QTimer>
 #include "amgraph.h"
 
 QT_BEGIN_NAMESPACE
@@ -20,17 +19,15 @@ public:
     int cur_selected;
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    QString calc();
     QVector<QCheckBox*> checkboxs;
-    QTimer status_timer;
     void getcity(int &index1,int &index2);
+    void paintEvent(QPaintEvent*);
 
 private slots:
     void on_exit_clicked();
-
     void on_search_clicked();
-
     void on_recover_clicked();
+    void statechanged();
 
 private:
     Ui::MainWindow *ui;
