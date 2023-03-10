@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->mapwidget->installEventFilter(this);
     ui->helpword->setStyleSheet("background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(251,102,102, 200), stop:1 rgba(20,196,188, 210));");
     ui->resulttext->setStyleSheet("background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(251,102,102, 200), stop:1 rgba(20,196,188, 210));");
     ui->search->setStyleSheet("QPushButton{font: 25 14pt '微软雅黑 Light';color: rgb(255,255,255);background-color: rgb(20,196,188);"
@@ -47,8 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     cur_selected = 0;
-    //ui->mapframe->set
-    ui->helpword->setText("\t使用说明\n\n1、选中任意两个城市地点,点击查询即可查询两城市间最短路径,结果包含最短路线图示,路线文字说明,以及最短路程长度.\n\n2、点击复原即可取消所有勾选城市及结果显示.\n\n3、Ps:所有城市以及源数据来源于网络");
+    ui->helpword->setText("\t使用说明\n\n1、选中任意两个城市地点,点击查询即可查询两城市间最短路径,结果包含最短路线图示,路线文字说明,以及最短路程长度.\n\n2、点击复原即可取消所有勾选城市及结果显示.\n\n3、Ps:所有城市以及源数据来源于网络\n\n4、标注里程单位：Km");
     G = new AMGraph();
     update();
 }
@@ -130,17 +130,38 @@ void MainWindow::statechanged()
     ui->statusbar->showMessage(QString("已选中")+QString::number(cur_selected)+QString("个地点城市: ")+s);
 }
 
+bool MainWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    if(watched == ui->mapwidget && event->type() == QEvent::Paint){
+        paintpath(G);
+    }
+    return QWidget::eventFilter(watched,event);
+}
 
-void MainWindow::paintEvent(QPaintEvent*){
-    QPainter painter(ui->mapframe);
+void MainWindow::paintpath(AMGraph *G)
+{
+    QPainter painter(ui->mapwidget);
+    int x1,y1,x2,y2;
     for(int i=1;i<=13;i++){
+        painter.setPen(QPen(Qt::black,5));
+        painter.drawPoint(checkboxs[i]->x()+30,checkboxs[i]->y()+15);
         for(int j=i;j<=13;j++){
+            painter.setPen(QPen(Qt::darkGray,2));
             if(G->arcs[i][j] != ENDLESS){
-                painter.drawLine(checkboxs[i]->x(),checkboxs[i]->y(),checkboxs[j]->x(),checkboxs[j]->y());//绘制城市线路
-
+                x1 = checkboxs[i]->x()+30;
+                y1 = checkboxs[i]->y()+15;
+                x2 = checkboxs[j]->x()+30;
+                y2 = checkboxs[j]->y()+15;
+                painter.drawLine(x1,y1,x2,y2);//绘制城市线路
+                painter.drawText(QPoint((x1+x2)/2,(y1+y2)/2),QString::number(G->arcs[i][j]));//绘制单线路径里程
             }
         }
     }// of for i
+
+}
+
+
+void MainWindow::paintEvent(QPaintEvent*){
 
 
 }

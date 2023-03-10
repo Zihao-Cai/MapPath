@@ -31,5 +31,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    bool eventFilter(QObject*watched,QEvent*event);
+    void paintpath(AMGraph* G);
 };
 #endif // MAINWINDOW_H
