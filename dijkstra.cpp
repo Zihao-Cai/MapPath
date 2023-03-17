@@ -1,34 +1,40 @@
 #include "dijkstra.h"
+#include "min_weight.h"
 
 
 
-void dijkstra(AMGraph* G,int city1,int city2){
+void dijkstra(AMGraph* G,int V,int src,double weight[]){
 
-/*这里是求无向网的最短路径,故两城市起点终点可以互换,这里默认1为起点,2为终点*/
-    int u = city1;//用u代替起点参数保护原始数据
-    int n = G->n;
-    int D[n];//以1-13为下标设置辅助向量D,记录到各地点的最短路径长度
-    QVector<int> S;//辅助向量,记录已并入路径的地点下标
-    S.push_back(u);
-    QVector<int> path;
-    for(int k=0;k<n-1;k++){  //最多需要循环n-1次
-        //每次循环都要找到未并入路径的顶点的最短路径长度,如下:
+        bool vis[V+1];
+        for(int i=1;i<=V;i++)
+        {
+            vis[i] = false;
+            weight[i] = G->arcs[src][i];
+        }
 
+        weight[src] = 0;            //起点到起点的最短路径为0，此后无需考虑
+        vis[src] = true;
 
+        for(int i=1;i<=V;i++)
+        {	//（外部主循环for，代表求索更新的步骤或者趟数）
+            int u = min_weight(weight, vis, V);
+            vis[u] = true;
+            //每一趟找到最小路径顶点u；同时顶点u即可并入路径，所以vis[u]置为true
+            for(int j=1;j<=V;j++)
+            {	//（内部循环for，该循环应该是在上述新结点并入后更新计算各个结点路径的操作）
+                if(!vis[j] && G->arcs[u][j] != 0 && weight[u] + G->arcs[u][j] < weight[j])
+                {
+                    weight[j] = weight[u] + G->arcs[u][j];
+                }
+            }
 
-
-
-    }
-
-
+        }
+        return ;
 }
 
 
-bool inpath(QVector<int> S, int index)
-{
-    for(int i=0;i<S.size();i++){
-        if(S[i] == index)   return true;
-    }
-    return false;
-}
+
+
+
+
 

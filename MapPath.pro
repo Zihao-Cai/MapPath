@@ -19,12 +19,14 @@ SOURCES += \
     amgraph.cpp \
     dijkstra.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    min_weight.cpp
 
 HEADERS += \
     amgraph.h \
     dijkstra.h \
-    mainwindow.h
+    mainwindow.h \
+    min_weight.h
 
 FORMS += \
     mainwindow.ui

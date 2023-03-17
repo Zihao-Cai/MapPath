@@ -6,6 +6,7 @@
 #include "amgraph.h"
 #include <QVector>
 
-void dijkstra(AMGraph* G,int city1,int city2);
 
-bool inpath(QVector<int> S,int index);
+void dijkstra(AMGraph* G,int V,int src,double weight[]);
+
+

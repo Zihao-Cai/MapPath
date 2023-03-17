@@ -5,6 +5,7 @@
 #include <QByteArray>
 #include "dijkstra.h"
 #include <QPainter>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -97,8 +98,10 @@ void MainWindow::on_search_clicked()
         return;
     }else{
         int city1,city2;
-        getcity(city1,city2);//得到对应城市下标
-        dijkstra(G,city1,city2);//迪杰斯特拉算法求出两城市的最短路径
+        getcity(city1,city2);//得到对应城市下标,默认city1是起点,city2是终点
+        double path_len[G->n+1];
+        dijkstra(G,G->n,city1,path_len);//迪杰斯特拉算法求出两城市的最短路径
+        qDebug()<<path_len[city2]<<endl;
     }
 }
 
