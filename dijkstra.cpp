@@ -3,7 +3,7 @@
 
 
 
-void dijkstra(AMGraph* G,int V,int src,double weight[]){
+void dijkstra(AMGraph* G,int V,int src,double weight[],QVector<QString>* path_city){
 
         bool vis[V+1];
         for(int i=1;i<=V;i++)
@@ -24,7 +24,8 @@ void dijkstra(AMGraph* G,int V,int src,double weight[]){
             {	//（内部循环for，该循环应该是在上述新结点并入后更新计算各个结点路径的操作）
                 if(!vis[j] && G->arcs[u][j] != 0 && weight[u] + G->arcs[u][j] < weight[j])
                 {
-                    weight[j] = weight[u] + G->arcs[u][j];
+                    weight[j] = weight[u] + G->arcs[u][j];//经过中间结点的路径更新为最短路径值
+                    //path_city[j].push_back(G->vexs[u]);//同时将该中间结点并入该结点最短路径的城市集中
                 }
             }
 

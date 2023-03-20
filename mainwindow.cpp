@@ -6,6 +6,7 @@
 #include "dijkstra.h"
 #include <QPainter>
 #include <QDebug>
+#include <QVector>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -100,9 +101,17 @@ void MainWindow::on_search_clicked()
         int city1,city2;
         getcity(city1,city2);//得到对应城市下标,默认city1是起点,city2是终点
         double path_len[G->n+1];
-        dijkstra(G,G->n,city1,path_len);//迪杰斯特拉算法求出两城市的最短路径
+        QVector<QString>* path_city = new QVector<QString>[G->n+1]();
+        for(int i=1;i<=G->n;i++){
+            path_city[i].push_back(G->vexs[city1]);
+        }
+        //开辟14x13的二维数组，每行存放各个结点路径的城市数标,初始化第一个为起点城市
+        dijkstra(G,G->n,city1,path_len,path_city);//迪杰斯特拉算法求出两城市的最短路径
         qDebug()<<path_len[city2]<<endl;
+        for(int i=0;i<path_city[city2].size();i++){qDebug()<<path_city[city2][i]<<endl;}
     }
+
+    return;
 }
 
 void MainWindow::on_recover_clicked()
@@ -131,6 +140,7 @@ void MainWindow::statechanged()
         }
     }
     ui->statusbar->showMessage(QString("已选中")+QString::number(cur_selected)+QString("个地点城市: ")+s);
+    return;
 }
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
@@ -160,6 +170,8 @@ void MainWindow::paintpath(AMGraph *G)
             }
         }
     }// of for i
+
+    return;
 
 }
 
