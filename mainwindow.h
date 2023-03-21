@@ -17,6 +17,8 @@ class MainWindow : public QMainWindow
 public:
     AMGraph* G;
     int cur_selected;
+    bool p;
+    QVector<int> path;
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     QVector<QCheckBox*> checkboxs;
@@ -32,6 +34,6 @@ private slots:
 private:
     Ui::MainWindow *ui;
     bool eventFilter(QObject*watched,QEvent*event);
-    void paintpath(AMGraph* G);
+    void paintpath(AMGraph* G,bool p,QVector<int> path);
 };
 #endif // MAINWINDOW_H

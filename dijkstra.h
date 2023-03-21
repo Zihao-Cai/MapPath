@@ -7,6 +7,6 @@
 #include <QVector>
 
 
-void dijkstra(AMGraph* G,int V,int src,double weight[],QVector<QString>* path_city);
+void dijkstra(AMGraph* G,int V,int src,double weight[],QVector<int>* path_city);
 
 

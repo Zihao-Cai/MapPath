@@ -7,7 +7,7 @@ class AMGraph
 {
 public:
     const static int n = 13;//顶点数量
-    QString vexs[n+1] = {"\0","wulumuqi","yinchuan","beijing","haerbin","zhengzhou","shanghai","lasa","chengdu","wuhan","nanning","haikou","xianggang","guangzhou"};;//顶点表
+    QString vexs[n+1] = {"\0","乌鲁木齐","银川","北京","哈尔滨","郑州","上海","拉萨","成都","武汉","南宁","海口","香港","广州"};;//顶点表
     int arcs[n+1][n+1] = {
         {ENDLESS,ENDLESS,ENDLESS,ENDLESS,ENDLESS,ENDLESS,ENDLESS,ENDLESS,ENDLESS,ENDLESS,ENDLESS,ENDLESS,ENDLESS},
         {ENDLESS,ENDLESS,1662,2624,ENDLESS,ENDLESS,ENDLESS,ENDLESS,ENDLESS,ENDLESS,ENDLESS,ENDLESS,ENDLESS,3836},

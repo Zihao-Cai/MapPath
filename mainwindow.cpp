@@ -48,8 +48,9 @@ MainWindow::MainWindow(QWidget *parent)
     for(int i=0;i<checkboxs.size();i++){
         connect(checkboxs[i],SIGNAL(clicked()),this,SLOT(statechanged()));
     }
-
+    //connect(ui->recover,SIGNAL(clicked()),this,SLOT(statechanged()));
     cur_selected = 0;
+    p = false;
     ui->helpword->setText("\t使用说明\n\n1、选中任意两个城市地点,点击查询即可查询两城市间最短路径,结果包含最短路线图示,路线文字说明,以及最短路程长度.\n\n2、点击复原即可取消所有勾选城市及结果显示.\n\n3、Ps:所有城市以及源数据来源于网络\n\n4、标注里程单位：Km");
     G = new AMGraph();
     update();
@@ -98,17 +99,35 @@ void MainWindow::on_search_clicked()
         on_recover_clicked();
         return;
     }else{
+        path.clear();
         int city1,city2;
         getcity(city1,city2);//得到对应城市下标,默认city1是起点,city2是终点
         double path_len[G->n+1];
-        QVector<QString>* path_city = new QVector<QString>[G->n+1]();
+        QVector<int>* path_city = new QVector<int>[G->n+1]();
         for(int i=1;i<=G->n;i++){
-            path_city[i].push_back(G->vexs[city1]);
+            path_city[i].push_back(city1);
         }
         //开辟14x13的二维数组，每行存放各个结点路径的城市数标,初始化第一个为起点城市
         dijkstra(G,G->n,city1,path_len,path_city);//迪杰斯特拉算法求出两城市的最短路径
-        qDebug()<<path_len[city2]<<endl;
-        for(int i=0;i<path_city[city2].size();i++){qDebug()<<path_city[city2][i]<<endl;}
+        //qDebug()<<path_len[city2]<<endl;
+
+        int u = city2;
+        path.push_front(city2);
+        while(u != city1){
+            u = path_city[u].last();
+            path.push_front(u);
+        }
+        //下面将结果展示到结果栏
+        QString str;
+        for(int i=0;i<path.size()-1;i++){
+            str += G->vexs[path[i]] + "---";
+        }
+        str += G->vexs[path.last()];
+        str += "\n\n总里程: " + QString::number(path_len[city2]) + " Km";
+        ui->resulttext->setFont(QFont("微软雅黑",14));
+        ui->resulttext->setText(str);
+        p = true;
+        update();
     }
 
     return;
@@ -116,7 +135,15 @@ void MainWindow::on_search_clicked()
 
 void MainWindow::on_recover_clicked()
 {
-    printf("recover done\n");
+    p = false;
+    ui->resulttext->clear();
+    for(int i=0;i<checkboxs.size();i++){
+        checkboxs[i]->setCheckState(Qt::Unchecked);
+    }
+    cur_selected = 0;
+    ui->statusbar->showMessage("已选中0个地点城市:");
+    update();
+    return;
 }
 
 void MainWindow::statechanged()
@@ -146,15 +173,30 @@ void MainWindow::statechanged()
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
     if(watched == ui->mapwidget && event->type() == QEvent::Paint){
-        paintpath(G);
+        paintpath(G,p,path);
     }
     return QWidget::eventFilter(watched,event);
 }
 
-void MainWindow::paintpath(AMGraph *G)
+void MainWindow::paintpath(AMGraph *G,bool p,QVector<int> path)
 {
     QPainter painter(ui->mapwidget);
     int x1,y1,x2,y2;
+    if(p){
+        painter.setPen(QPen(Qt::red,3));
+        for(int i=0;i<path.size()-1;i++){
+            x1 = checkboxs[path[i]]->x()+30;
+            y1 = checkboxs[path[i]]->y()+15;
+            x2 = checkboxs[path[i+1]]->x()+30;
+            y2 = checkboxs[path[i+1]]->y()+15;
+            painter.drawLine(x1,y1,x2,y2);
+            painter.drawText(QPoint((x1+x2)/2,(y1+y2)/2),QString::number(G->arcs[path[i]][path[i+1]]));
+
+        }
+        return;
+    }
+
+    else{
     for(int i=1;i<=13;i++){
         painter.setPen(QPen(Qt::black,5));
         painter.drawPoint(checkboxs[i]->x()+30,checkboxs[i]->y()+15);
@@ -170,8 +212,8 @@ void MainWindow::paintpath(AMGraph *G)
             }
         }
     }// of for i
-
     return;
+    }
 
 }
 
